@@ -266,7 +266,60 @@ export default function Toolbar() {
 
 ### Passing handlers as alternative to propagation 
 
+prop으로 전달받은 `onClick` 이벤트 핸들러 전에 실행될 코드를 추가할 수 있습니다.
+
+```jsx
+function Button({ onClick, children }) {
+  return (
+    <button onClick={e => {
+      e.stopPropagation();
+      onClick();
+    }}>
+      {children}
+    </button>
+  );
+}
+```
+
+이 패턴은 propagation의 *대안*을 제공합니다. 자식 컴포넌트도 이벤트를 다룸과 동시에 부모 컴포넌트 역시 몇가지 동작을 수행하도록 명시할 수 있습니다. prpagation과 달리 이것은 자동적이지 않습니다. 그러나 특정 이벤트의 결과로 실행되는 전체 코드 체닝을 명확하게 따를 수 있다는 것이 이 패턴의 장점입니다.
+
+propagation에 의존하고 있고 어떤 그리고 왜 이벤트 핸들러가 실행됐는지 추적하는 것이 힘들다면, 이 접근법을 사용하길 바랍니다.
+
 ### Preventing default behavior 
+
+특정 브라우저 이벤트에는 기본 동작이 연결되어 있습니다. 예를 들어 내부의 버튼이 클릭됐을 때 일어나는 `<form>` 이벤트는 기본적으로 페이지를 새로고침 합니다.
+
+```jsx
+export default function Signup() {
+  return (
+    <form onSubmit={() => alert('Submitting!')}>
+      <input />
+      <button>Send</button>
+    </form>
+  );
+}
+```
+
+`e.preventDefault()`을 호출하여 기본 동작이 일어나는 것을 멈출 수 있습니다.
+
+```jsx
+export default function Signup() {
+  return (
+    <form onSubmit={e => {
+      e.preventDefault();
+      alert('Submitting!');
+    }}>
+      <input />
+      <button>Send</button>
+    </form>
+  );
+}
+```
+
+`e.stopPropagation()`와 `e.preventDefault()`를 혼동해선 안됩니다. 이 둘은 유용하지만 서로 관련 없습니다.
+
+- `e.stopPropagation()`은 위의 태그에 연결된 이벤트 핸들러가 실행되지 않도록 합니다.
+- `e.preventDefault()`는특정 이벤트가 가지고 있는 브라우저 기본 동작을 막습니다.
 
 ## Can event handlers have side effects? 
 
